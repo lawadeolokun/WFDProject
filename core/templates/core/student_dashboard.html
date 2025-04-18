@@ -1,0 +1,27 @@
+<!-- core/templates/core/student_dashboard.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student Dashboard</title>
+</head>
+<body>
+    <h1>Your Enrolled Modules</h1>
+    {% if enrollments %}
+        <ul>
+            {% for enrollment in enrollments %}
+                <li>
+                    {{ enrollment.module.title }} - Progress: 
+                    {% if enrollment.progress %}
+                        {{ enrollment.progress.progress_percentage }}%
+                    {% else %}
+                        No progress recorded
+                    {% endif %}
+                    <a href="{% url 'track_progress' enrollment.id %}">Track Progress</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>You are not enrolled in any modules. Please check back later or contact an admin.</p>
+    {% endif %}
+</body>
+</html>

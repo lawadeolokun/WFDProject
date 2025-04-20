@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Create User</title>
+    <title>Create Training Module</title>
 </head>
 <body>
-    <h2>Create User</h2>
+    <h2>Create a New Training Module</h2>
 
     {% if messages %}
         <div class="messages">
@@ -17,9 +17,9 @@
     <form method="POST">
         {% csrf_token %}
         {{ form.as_p }} 
-        <button type="submit">Create User</button>
+        <button type="submit">Create Module</button>
     </form>
 
-    <p><a href="{% url 'user_list' %}">Back to User List</a></p>
+    <p><a href="{% url 'admin_dashboard' %}">Back to Admin Dashboard</a></p>
 </body>
 </html>

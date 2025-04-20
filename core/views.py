@@ -3,9 +3,10 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
-from .forms import CustomUserCreationForm
+from .forms import CustomUserCreationForm, TrainingModuleForm, TrainerForm
 from .models import TrainingModule, Enrollment, Student, Trainer, Progress
 from django.contrib.auth.models import User
+from core.models import User
 
 def home(request):
     return render(request, 'core/home.html')
@@ -80,13 +81,13 @@ def create_user(request):
         return redirect('home')  
 
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+        form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             form.save()
             messages.success(request, 'User created successfully!')
             return redirect('user_list')  
     else:
-        form = UserCreationForm()
+        form = CustomUserCreationForm()
 
     return render(request, 'core/create_user.html', {'form': form})
 
@@ -115,7 +116,16 @@ def update_user(request, user_id):
 @login_required
 def delete_user(request, user_id):
     if not request.user.is_staff: 
-        return redirect('home')  
+        return redirect('home') 
+    
+    try:
+        user = User.objects.get(id=user_id)
+        user.delete()
+        messages.success(request, 'User deleted successfully!')
+        return redirect('user_list')
+    except User.DoesNotExist:
+        messages.error(request, 'User not found.')
+        return redirect('user_list')
 
 @login_required
 def user_list(request):
@@ -126,4 +136,45 @@ def user_list(request):
 
 @login_required
 def admin_dashboard(request):
+    if not request.user.is_staff:
+        return redirect('home')  # Redirect non-admin users to the homepage or another page
+
+    # Query using the custom User model (core.User)
+    users = User.objects.all()  # Get all users
+    modules = TrainingModule.objects.all()  # Get all modules
+
+    context = {
+        'users': users,
+        'modules': modules,
+    }
     return render(request, 'core/admin_dashboard.html')
+
+@login_required
+def create_module(request):
+    if not request.user.is_staff:
+        return redirect('home')  # Only allow admin to create modules
+
+    if request.method == 'POST':
+        form = TrainingModuleForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Training module created successfully!')
+            return redirect('admin_dashboard')  # Redirect to admin dashboard after creating a module
+    else:
+        form = TrainingModuleForm()
+
+    return render(request, 'core/create_module.html', {'form': form})
+
+def create_trainer(request):
+    if request.method == 'POST':
+        form = TrainerForm(request.POST)
+        if form.is_valid():
+            trainer = form.save()
+            # Ensure trainer object is saved correctly
+            print(f"Trainer {trainer.trainer_id} created")
+            return redirect('trainer_dashboard')
+        else:
+            print("Form is not valid:", form.errors)
+    else:
+        form = TrainerForm()
+    return render(request, 'core/create_trainer.html', {'form': form})

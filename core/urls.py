@@ -21,5 +21,5 @@ urlpatterns = [
     path('admin_dashboard/', views.admin_dashboard, name='admin_dashboard'),  
     path('student_dashboard/', views.student_dashboard, name='student_dashboard'),  
     path('trainer_dashboard/', views.trainer_dashboard, name='trainer_dashboard'), 
-
+    path('create_module/', views.create_module, name='create_module'),
 ]

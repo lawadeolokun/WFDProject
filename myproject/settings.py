@@ -30,7 +30,7 @@ ALLOWED_HOSTS = []
 AUTH_USER_MODEL = 'core.User'
 
 LOGIN_URL = '/login/'
-LOGIN_REDIRECT_URL = '/admin_dashboard/'
+LOGIN_REDIRECT_URL = '/user_profile/'
 
 # Application definition
 

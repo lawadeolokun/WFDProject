@@ -13,13 +13,18 @@ class TrainerAdmin(admin.ModelAdmin):
             obj.user = User.objects.get(username=request.user.username)  # Set the logged-in user as a trainer
         super().save_model(request, obj, form, change)
 
+class TrainingModuleAdmin(admin.ModelAdmin):
+    list_display = ['title', 'trainer']
+    search_fields = ['title', 'trainer__user__username']
+
+
 
 # Register your models here.
 admin.site.register(User)
 admin.site.register(Admin)
 admin.site.register(Trainer, TrainerAdmin)
 admin.site.register(Student)
-admin.site.register(TrainingModule)
+admin.site.register(TrainingModule, TrainingModuleAdmin)
 admin.site.register(Enrollment)
 admin.site.register(Progress)
 

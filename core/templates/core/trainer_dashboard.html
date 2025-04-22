@@ -4,18 +4,26 @@
     <title>Trainer Dashboard</title>
 </head>
 <body>
-    <h1>Your Training Modules</h1>
-    <ul>
-        {% for module in modules %}
-            <li>
-                {{ module.title }} - {{ module.description }}
-                <ul>
-                    {% for enrollment in module.enrollment_set.all %}
-                        <li>{{ enrollment.student.user.username }}</li>
-                    {% endfor %}
-                </ul>
-            </li>
-        {% endfor %}
-    </ul>
+    <h1>Welcome, {{ user.first_name }}!</h1>
+    <h2>Your Training Modules</h2>
+
+    {% if modules %}
+        <ul>
+            {% for module in modules %}
+                <li>
+                    <strong>{{ module.title }}</strong><br>
+                    {{ module.description }}<br>
+                    Number of Students: {{ module.enrollment_set.count }}<br>
+                    <a href="{% url 'assign_student_to_module' module.id %}">Assign Student to this Module</a><br>
+                    <br>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>You haven't created any training modules yet.</p>
+    {% endif %}
+    
+    <hr>
+    <button><a href="{% url 'create_module' %}">Create New Module</a></button>
 </body>
 </html>

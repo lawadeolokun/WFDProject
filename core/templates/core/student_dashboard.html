@@ -9,18 +9,37 @@
         <ul>
             {% for enrollment in enrollments %}
                 <li>
-                    {{ enrollment.module.title }} - Progress: 
+                    <strong>{{ enrollment.module.title }}</strong><br>
+                    Progress: 
                     {% if enrollment.progress %}
                         {{ enrollment.progress.progress_percentage }}%
                     {% else %}
                         No progress recorded
                     {% endif %}
+                    <br>
                     <a href="{% url 'track_progress' enrollment.id %}">Track Progress</a>
                 </li>
             {% endfor %}
         </ul>
     {% else %}
-        <p>You are not enrolled in any modules. Please check back later or contact an admin.</p>
+        <p>You are not enrolled in any modules. Please enroll in a module or check back later.</p>
+    {% endif %}
+    
+    <hr>
+
+    <h2>Available Modules</h2>
+    {% if available_modules %}
+        <ul>
+            {% for module in available_modules %}
+                <li>
+                    <strong>{{ module.title }}</strong><br>
+                    {{ module.description }}<br>
+                    <a href="{% url 'enroll_in_module' module.id %}">Enroll in this module</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No modules available for enrollment at the moment.</p>
     {% endif %}
 </body>
 </html>

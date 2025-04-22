@@ -10,16 +10,29 @@ class CustomUserCreationForm(UserCreationForm):
     )
 
     role = forms.ChoiceField(choices=ROLE_CHOICES, required=True)
+    first_name = forms.CharField(max_length=30, required=True)
+    surname = forms.CharField(max_length=30, required=True)
 
     class Meta:
         model = User
-        fields = ('username', 'password', 'email', 'role')  
+        fields = ('username', 'first_name', 'surname', 'email', 'role')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Ensure the fields are in the correct order
+        self.fields['first_name'].label = "First Name"
+        self.fields['surname'].label = "Last Name"
 
 class TrainingModuleForm(forms.ModelForm):
     class Meta:
         model = TrainingModule
         fields = ['title', 'description', 'trainer']
         trainer = forms.ModelChoiceField(queryset=Trainer.objects.all(), empty_label="Select a trainer")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Make sure the 'trainer' field uses the custom __str__ method
+        self.fields['trainer'].queryset = Trainer.objects.all()  
 
 
 class TrainerForm(forms.ModelForm):

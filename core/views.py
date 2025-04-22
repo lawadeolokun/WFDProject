@@ -1,5 +1,5 @@
 # core/views.py
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
@@ -26,37 +26,85 @@ def enroll_in_module(request, module_id):
     
     return render(request, 'core/enroll_failed.html', {'message': 'Already enrolled in this module'})
 
+@login_required
 def student_dashboard(request):
-    student = Student.objects.get(user=request.user)
+    try:
+        student = Student.objects.get(user=request.user)
+    except Student.DoesNotExist:
+        messages.error(request, "You are not registered as a student.")
+        return redirect('home')
+    
     enrollments = Enrollment.objects.filter(student=student)
+    available_modules = TrainingModule.objects.exclude(id__in=[enrollment.module.id for enrollment in enrollments])
 
     if not enrollments.exists():
         messages.info(request, "You are not enrolled in any modules.")
 
-    return render(request, 'core/student_dashboard.html', {'enrollments': enrollments})
+    return render(request, 'core/student_dashboard.html', {'enrollments': enrollments, 'available_modules': available_modules,})
 
 @login_required
 def trainer_dashboard(request):
+    if not request.user.role == 'trainer':
+        return redirect('home')
+    
     try:
         trainer = Trainer.objects.get(user=request.user)
         modules = TrainingModule.objects.filter(trainer=trainer)
     except Trainer.DoesNotExist:
         return redirect('home')
     
+    enrollments = Enrollment.objects.filter(module__in=modules)
+    students = [enrollment.student for enrollment in enrollments]
+    
     return render(request, 'core/trainer_dashboard.html', {'modules': modules})
 
+@login_required
 def track_progress(request, enrollment_id):
     enrollment = Enrollment.objects.get(id=enrollment_id)
-    progress = Progress.objects.filter(enrollment=enrollment).first()
+
+    if request.user != enrollment.student.user:
+        return redirect('home')
+
+    progress, created = Progress.objects.get_or_create(enrollment=enrollment)
+
+    if request.method == 'POST':
+        progress_percentage = request.POST.get('progress_percentage')
+        completion_status = request.POST.get('completion_status')
+        points = request.POST.get('points')
+
+        if progress_percentage is not None:
+            progress.progress_percentage = float(progress_percentage)
+        if completion_status:
+            progress.completion_status = completion_status
+        if points is not None:
+            progress.points = int(points)
+
+        progress.assign_badge()  
+
+        progress.save()
+        
+        messages.success(request, 'Your progress has been updated!')
+        return redirect('track_progress', enrollment_id=enrollment.id)
+
     return render(request, 'core/track_progress.html', {'progress': progress, 'enrollment': enrollment})
+
 
 def register(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()  
+            
             if user.role == 'student':
-                Student.objects.create(user=user)
+                student = Student.objects.create(user=user)
+                student.student_id = student.generate_student_id() 
+                student.save()
+
+            elif user.role == 'trainer':
+                trainer = Trainer.objects.create(user=user)
+                trainer.trainer_id = trainer.generate_trainer_id()  
+                trainer.save() 
+                
             messages.success(request, 'Your account has been created! You can now log in.')
             return redirect('login')  
     else:
@@ -64,10 +112,11 @@ def register(request):
     
     return render(request, 'registration/register.html', {'form': form})
 
+
 @login_required
 def user_profile(request):
     if request.user.is_staff:
-        return redirect('/admin/') 
+        return redirect('admin_dashboard') 
     elif request.user.role == 'student':
         return redirect('student_dashboard')
     elif request.user.role == 'trainer':
@@ -151,7 +200,7 @@ def admin_dashboard(request):
 
 @login_required
 def create_module(request):
-    if not request.user.is_staff:
+    if not request.user.is_staff and request.user.role != 'trainer':
         return redirect('home')  # Only allow admin to create modules
 
     if request.method == 'POST':
@@ -165,16 +214,62 @@ def create_module(request):
 
     return render(request, 'core/create_module.html', {'form': form})
 
-def create_trainer(request):
+def create_trainer(user_instance, trainer_id):
+    trainer = Trainer(user=user_instance, trainer_id=trainer_id)
+    trainer.save()
+    return trainer
+
+@login_required
+def assign_student_to_module(request, module_id):
+    if not request.user.is_staff and request.user.role != 'trainer':
+        return redirect('home') 
+
+    try:
+        module = TrainingModule.objects.get(id=module_id)
+    except TrainingModule.DoesNotExist:
+        messages.error(request, "The module you are trying to assign students to does not exist.")
+        return redirect('trainer_dashboard')
+
     if request.method == 'POST':
-        form = TrainerForm(request.POST)
-        if form.is_valid():
-            trainer = form.save()
-            # Ensure trainer object is saved correctly
-            print(f"Trainer {trainer.trainer_id} created")
+        student_id = request.POST.get('student_id')
+        
+        if not student_id:
+            messages.error(request, "No student selected.")
             return redirect('trainer_dashboard')
+
+        try:
+            student = Student.objects.get(id=student_id)
+            
+            if Enrollment.objects.filter(student=student, module=module).exists():
+                messages.info(request, f'{student.user.first_name} {student.user.last_name} is already enrolled in this module.')
+            else:
+                Enrollment.objects.create(student=student, module=module)
+                messages.success(request, f'Student {student.user.first_name} {student.user.last_name} successfully enrolled in {module.title}.')
+
+        except Student.DoesNotExist:
+            messages.error(request, 'The student you selected does not exist.')
+        
+        return redirect('assign_student_to_module', module_id=module_id) 
+
+    students = Student.objects.all()
+    return render(request, 'core/assign_student_to_module.html', {'module': module, 'students': students})
+
+@login_required
+def student_enrollment(request):
+    modules = TrainingModule.objects.all()
+    
+    if request.method == 'POST':
+        module_id = request.POST.get('module_id')
+        student = Student.objects.get(user=request.user)
+        module = TrainingModule.objects.get(id=module_id)
+
+        if not Enrollment.objects.filter(student=student, module=module).exists():
+            Enrollment.objects.create(student=student, module=module)
+            messages.success(request, f'You have successfully enrolled in {module.title}.')
         else:
-            print("Form is not valid:", form.errors)
-    else:
-        form = TrainerForm()
-    return render(request, 'core/create_trainer.html', {'form': form})
+            messages.info(request, f'You are already enrolled in {module.title}.')
+        
+        return redirect('student_dashboard')
+
+    return render(request, 'core/student_enrollment.html', {'modules': modules})
+

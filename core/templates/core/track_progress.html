@@ -4,8 +4,38 @@
     <title>Track Progress</title>
 </head>
 <body>
-    <h1>Progress for {{ enrollment.module.title }}</h1>
-    <p>Progress: {{ progress.progress_percentage }}%</p>
-    <p>Status: {{ progress.completion_status }}</p>
+    <h1>Track Progress for Module: {{ enrollment.module.title }}</h1>
+
+    <p><strong>Student:</strong> {{ enrollment.student.user.first_name }} {{ enrollment.student.user.last_name }}</p>
+
+    <h2>Progress Information</h2>
+    <p><strong>Progress Percentage:</strong> {{ progress.progress_percentage }}%</p>
+    <p><strong>Status:</strong> {{ progress.completion_status }}</p>
+    <p><strong>Points:</strong> {{ progress.points }}</p>
+    <p><strong>Badge Earned:</strong> {{ progress.badge_earned }}</p>  <!-- Display Badge -->
+
+    <hr>
+
+    {% if request.user == enrollment.student.user %}
+        <form method="POST">
+            {% csrf_token %}
+            <label for="progress_percentage">Update Progress (%)</label>
+            <input type="number" id="progress_percentage" name="progress_percentage" min="0" max="100" value="{{ progress.progress_percentage }}">
+            
+            <label for="completion_status">Completion Status</label>
+            <select name="completion_status" id="completion_status">
+                <option value="in-progress" {% if progress.completion_status == 'in-progress' %}selected{% endif %}>In Progress</option>
+                <option value="completed" {% if progress.completion_status == 'completed' %}selected{% endif %}>Completed</option>
+            </select>
+            
+            <label for="points">Points</label>
+            <input type="number" id="points" name="points" min="0" value="{{ progress.points }}">
+
+            <button type="submit">Update Progress</button>
+        </form>
+    {% endif %}
+
+    <br>
+    <a href="{% url 'student_dashboard' %}">Back to Dashboard</a>
 </body>
 </html>

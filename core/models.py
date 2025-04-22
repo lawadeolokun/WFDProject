@@ -122,23 +122,32 @@ class Enrollment(models.Model):
 class Progress(models.Model):
     enrollment = models.OneToOneField(Enrollment, on_delete=models.CASCADE)
     progress_percentage = models.FloatField(default=0.0)
-    completion_status = models.CharField(max_length=20)
+    completion_status = models.CharField(max_length=20, default='in-progress')
     points = models.IntegerField(default=0)  # Points for gamification
     badge_earned = models.CharField(max_length=50, blank=True)  # Badge earned for completing challenges
 
     def __str__(self):
         return f"Progress for {self.enrollment.student.user.first_name} in {self.enrollment.module.title}"
     
-    def assign_badge(self):
+    def assign_badge_and_points(self):
         if self.progress_percentage >= 100:
-            self.badge_earned = "Completed"
+            self.badge_earned = "Platinum"
+            self.points = 100
+            self.completion_status = "Completed"
         elif self.progress_percentage >= 75:
-            self.badge_earned = "High Achiever"
+            self.badge_earned = "Gold"
+            self.points = 75
         elif self.progress_percentage >= 50:
-            self.badge_earned = "Intermediate"
+            self.badge_earned = "Silver"
+            self.points = 50
+        elif self.progress_percentage >= 25:
+            self.badge_earned = "Bronze"
+            self.points = 25
         else:
-            self.badge_earned = "Beginner"
+            self.progress_percentage = 0
+            self.badge_earned = "No Badge"
+            self.completion_status = "in-progress"
 
     def save(self, *args, **kwargs):
-        self.assign_badge()
+        self.assign_badge_and_points()
         super().save(*args, **kwargs)

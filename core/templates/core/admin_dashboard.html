@@ -5,21 +5,12 @@
 </head>
 <body>
 
-    <h1>Training Modules</h1>
-    <p>Here you can manage users, manage Training Modules, etc.</p>
-    <ul>
-        {% for module in modules %}
-            <li>{{ module.title }} 
-                <a href="{% url 'update_module' module.id %}">Edit</a> 
-                <a href="{% url 'delete_module' module.id %}">Delete</a>
-            </li>
-        {% endfor %}
-    </ul>
+    <h1>Admin Dashboard</h1>
 
-    <p><a href="{% url 'create_user' %}">Create New User</a></p>
-    <p><a href="{% url 'create_module' %}">Create New Module</a></p>
+    <p>Here you can manage Users, manage Training Modules and Create new Users and Training Modules.</p>
 
-    <h1>User Management</h1>
+
+    <h2>User Management</h2>
     <ul>
         {% for user in users %}
             <li>{{ user.username }} - {{ user.email }} 
@@ -28,6 +19,19 @@
             </li>
         {% endfor %}
     </ul>
+
+    <h2>Training Modules</h2>
+    <ul>
+        {% for module in modules %}
+            <li>{{ module.title }} 
+                <a href="{% url 'update_module' module.id %}">Edit</a> 
+                <a href="{% url 'delete_module' module.id %}">Delete</a>
+            </li>
+        {% endfor %}
+    </ul>
     
+    <p><a href="{% url 'create_user' %}">Create New User</a></p>
+    <p><a href="{% url 'create_module' %}">Create New Module</a></p>
+
 </body>
 </html>

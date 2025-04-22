@@ -4,18 +4,24 @@
     <title>User List</title>
 </head>
 <body>
-    <h2>All Users</h2>
+    <h1>User Management</h1>
+
+    <form method="GET">
+        <label for="search">Search Users:</label>
+        <input type="text" name="q" id="search" value="{{ query }}" placeholder="Search by username or email">
+        <button type="submit">Search</button>
+    </form>
 
     <ul>
         {% for user in users %}
             <li>
-                {{ user.username }}
-                <a href="{% url 'update_user' user.id %}">Update</a>
+                {{ user.username }} - {{ user.email }} 
+                <a href="{% url 'update_user' user.id %}">Edit</a> 
                 <a href="{% url 'delete_user' user.id %}">Delete</a>
             </li>
+        {% empty %}
+            <p>No users found for your search criteria.</p>
         {% endfor %}
     </ul>
-
-    <a href="{% url 'create_user' %}">Create New User</a>
 </body>
 </html>

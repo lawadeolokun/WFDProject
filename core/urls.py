@@ -22,6 +22,8 @@ urlpatterns = [
     path('student_dashboard/', views.student_dashboard, name='student_dashboard'),  
     path('trainer_dashboard/', views.trainer_dashboard, name='trainer_dashboard'), 
     path('create_module/', views.create_module, name='create_module'),
+    path('update_module/<int:module_id>/', views.update_module, name='update_module'),
+    path('delete_module/<int:module_id>/', views.delete_module, name='delete_module'),
     path('assign_student_to_module/<int:module_id>/', views.assign_student_to_module, name='assign_student_to_module'),
     path('enroll/', views.student_enrollment, name='student_enrollment'),
     

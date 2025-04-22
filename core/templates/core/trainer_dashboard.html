@@ -8,6 +8,11 @@
     <h2>Your Training Modules</h2>
 
     {% if modules %}
+    <form method="GET">
+        <label for="search">Search Modules:</label>
+        <input type="text" name="q" id="search" value="{{ query }}" placeholder="Search by title or description">
+        <button type="submit">Search</button>
+    </form>
         <ul>
             {% for module in modules %}
                 <li>

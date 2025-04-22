@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Update Module</title>
+</head>
+<body>
+    <h1>Update Module: {{ module.title }}</h1>
+
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <p>{{ message }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Save Changes</button>
+    </form>
+
+    <br>
+    <a href="{% url 'admin_dashboard' %}">Back to Dashboard</a>
+</body>
+</html>

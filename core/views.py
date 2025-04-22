@@ -7,13 +7,18 @@ from .forms import CustomUserCreationForm, TrainingModuleForm, TrainerForm
 from .models import TrainingModule, Enrollment, Student, Trainer, Progress
 from django.contrib.auth.models import User
 from core.models import User
+from django.db.models import Q
 
 def home(request):
     return render(request, 'core/home.html')
 
 def module_list(request):
-    modules = TrainingModule.objects.all()  # Get all training modules
-    return render(request, 'core/module_list.html', {'modules': modules})
+    query = request.GET.get('q', '')
+    modules = TrainingModule.objects.filter(
+        Q(title__icontains=query) | Q(description__icontains=query)
+    )
+
+    return render(request, 'core/module_list.html', {'modules': modules, 'query': query})
 
 def enroll_in_module(request, module_id):
     student = Student.objects.get(user=request.user)
@@ -48,15 +53,29 @@ def trainer_dashboard(request):
         return redirect('home')
     
     try:
+        query = request.GET.get('q', '')  
+
         trainer = Trainer.objects.get(user=request.user)
-        modules = TrainingModule.objects.filter(trainer=trainer)
+        modules = TrainingModule.objects.filter(trainer=trainer).filter(
+            Q(title__icontains=query) | Q(description__icontains=query)
+        )
+
     except Trainer.DoesNotExist:
         return redirect('home')
-    
+
     enrollments = Enrollment.objects.filter(module__in=modules)
-    students = [enrollment.student for enrollment in enrollments]
-    
-    return render(request, 'core/trainer_dashboard.html', {'modules': modules})
+    module_students = {}
+    for module in modules:
+        module_students[module] = [
+            enrollment.student for enrollment in enrollments if enrollment.module == module
+        ]
+
+    return render(request, 'core/trainer_dashboard.html', {
+        'modules': modules,
+        'module_students': module_students,
+        'query': query
+    })
+
 
 @login_required
 def track_progress(request, enrollment_id):
@@ -79,7 +98,7 @@ def track_progress(request, enrollment_id):
         if points is not None:
             progress.points = int(points)
 
-        progress.assign_badge()  
+        progress.assign_badge_and_points()  
 
         progress.save()
         
@@ -156,7 +175,7 @@ def update_user(request, user_id):
         if form.is_valid():
             form.save()
             messages.success(request, 'User updated successfully!')
-            return redirect('user_list') 
+            return redirect('admin_dashboard') 
     else:
         form = UserChangeForm(instance=user)
 
@@ -171,7 +190,7 @@ def delete_user(request, user_id):
         user = User.objects.get(id=user_id)
         user.delete()
         messages.success(request, 'User deleted successfully!')
-        return redirect('user_list')
+        return redirect('admin_dashboard')
     except User.DoesNotExist:
         messages.error(request, 'User not found.')
         return redirect('user_list')
@@ -180,8 +199,11 @@ def delete_user(request, user_id):
 def user_list(request):
     if not request.user.is_staff: 
         return redirect('home') 
-    users = User.objects.all()
-    return render(request, 'core/user_list.html', {'users': users})
+    query = request.GET.get('q', '')
+    users = User.objects.filter(
+        Q(username__icontains=query) | Q(email__icontains=query)
+    )
+    return render(request, 'core/user_list.html', {'users': users, 'query': query})
 
 @login_required
 def admin_dashboard(request):
@@ -196,7 +218,7 @@ def admin_dashboard(request):
         'users': users,
         'modules': modules,
     }
-    return render(request, 'core/admin_dashboard.html')
+    return render(request, 'core/admin_dashboard.html', context)
 
 @login_required
 def create_module(request):
@@ -273,3 +295,56 @@ def student_enrollment(request):
 
     return render(request, 'core/student_enrollment.html', {'modules': modules})
 
+@login_required
+def update_module(request, module_id):
+    if not request.user.is_staff:
+        return redirect('home') 
+    
+    module = get_object_or_404(TrainingModule, id=module_id)
+    
+    if request.method == 'POST':
+        form = TrainingModuleForm(request.POST, instance=module)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'The module "{module.title}" has been updated!')
+            return redirect('admin_dashboard') 
+    else:
+        form = TrainingModuleForm(instance=module)
+    
+    return render(request, 'core/update_module.html', {'form': form, 'module': module})
+
+@login_required
+def delete_module(request, module_id):
+    if not request.user.is_staff:
+        return redirect('home') 
+    
+    module = get_object_or_404(TrainingModule, id=module_id)
+    
+    if request.method == 'POST':
+            module.delete()
+            messages.success(request, f'The module "{module.title}" has been deleted!')
+            return redirect('admin_dashboard') 
+    
+    return render(request, 'core/delete_module.html', {'module': module})
+
+def student_list(request):
+    query = request.GET.get('q', '') 
+    filter_module = request.GET.get('module', '') 
+    filter_status = request.GET.get('status', '') 
+    
+    students = Student.objects.all()
+    
+    if query:
+        students = students.filter(
+            Q(user__username__icontains=query) | 
+            Q(user__first_name__icontains=query) | 
+            Q(user__last_name__icontains=query)
+        )
+    
+    if filter_module:
+        students = students.filter(enrollment__module__id=filter_module)
+    
+    if filter_status:
+        students = students.filter(progress__completion_status=filter_status)
+    
+    return render(request, 'core/student_list.html', {'students': students, 'query': query, 'filter_module': filter_module, 'filter_status': filter_status})

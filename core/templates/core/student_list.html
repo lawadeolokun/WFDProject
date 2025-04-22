@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student List</title>
+</head>
+<body>
+    <h1>Student Management</h1>
+
+    <form method="GET">
+        <label for="search">Search Students:</label>
+        <input type="text" name="q" id="search" value="{{ query }}" placeholder="Search by username, first name or last name">
+        <button type="submit">Search</button>
+
+        <label for="module">Filter by Module:</label>
+        <select name="module" id="module">
+            <option value="">--All Modules--</option>
+            {% for module in modules %}
+                <option value="{{ module.id }}" {% if filter_module == module.id %}selected{% endif %}>{{ module.title }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="status">Filter by Status:</label>
+        <select name="status" id="status">
+            <option value="">--All Status--</option>
+            <option value="in-progress" {% if filter_status == 'in-progress' %}selected{% endif %}>In Progress</option>
+            <option value="completed" {% if filter_status == 'completed' %}selected{% endif %}>Completed</option>
+        </select>
+
+        <button type="submit">Filter</button>
+    </form>
+
+    <ul>
+        {% for student in students %}
+            <li>
+                {{ student.user.username }} - {{ student.user.first_name }} {{ student.user.last_name }}<br>
+                <strong>Status:</strong> 
+                {% if student.progress %}
+                    {{ student.progress.completion_status }}
+                {% else %}
+                    No progress recorded
+                {% endif %}
+            </li>
+        {% empty %}
+            <p>No students found for your search criteria.</p>
+        {% endfor %}
+    </ul>
+</body>
+</html>

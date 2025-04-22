@@ -1,15 +1,26 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Training Modules</title>
+    <title>Module List</title>
 </head>
 <body>
-    <h1>Training Modules</h1>
+    <h1>Available Training Modules</h1>
+
+    <form method="GET">
+        <label for="search">Search Modules:</label>
+        <input type="text" name="q" id="search" value="{{ query }}" placeholder="Search by title or description">
+        <button type="submit">Search</button>
+    </form>
+
     <ul>
         {% for module in modules %}
-            <li>{{ module.title }} - {{ module.description }}</li>
+            <li>
+                <strong>{{ module.title }}</strong><br>
+                {{ module.description }}<br>
+                <a href="{% url 'module_detail' module.id %}">View Details</a>
+            </li>
+        {% empty %}
+            <p>No modules found for your search criteria.</p>
         {% endfor %}
     </ul>
 </body>

@@ -1,17 +1,29 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Update User</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-    <h2>Update User - {{ user.username }}</h2>
+    <div class="container mt-4">
+        <h2>Update User - {{ user.username }}</h2>
 
-    <form method="POST">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Update User</button>
-    </form>
+        <form method="POST">
+            {% csrf_token %}
+            <div class="mb-3">
+                {{ form.as_p }}
+            </div>
+            <button type="submit" class="btn btn-primary">Update User</button>
+        </form>
 
-    <p><a href="{% url 'user_list' %}">Back to User List</a></p>
+        <hr>
+
+        <p><a href="{% url 'home' %}" class="btn btn-secondary">Back to Home</a></p>
+        <p><a href="{% url 'user_list' %}" class="btn btn-secondary">Back to User List</a></p>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

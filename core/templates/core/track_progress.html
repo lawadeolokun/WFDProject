@@ -1,65 +1,60 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Track Progress</title>
-    <style>
-        /* Progress bar styles */
-        .progress-container {
-            width: 100%;
-            background-color: #f3f3f3;
-            border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .progress-bar {
-            height: 30px;
-            width: 0%; /* This will be dynamically updated */
-            background-color: #4caf50;
-            text-align: center;
-            line-height: 30px; /* Centers text inside the bar */
-            color: white;
-            border-radius: 10px;
-        }
-    </style>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-    <h1>Track Progress for Module: {{ enrollment.module.title }}</h1>
+    <div class="container mt-4">
+        <h1 class="mb-4">Track Progress for Module: {{ enrollment.module.title }}</h1>
 
-    <p><strong>Student:</strong> {{ enrollment.student.user.first_name }} {{ enrollment.student.user.last_name }}</p>
+        <p><strong>Student:</strong> {{ enrollment.student.user.first_name }} {{ enrollment.student.user.last_name }}</p>
 
-    <h2>Progress Information</h2>
-    <p><strong>Progress Percentage:</strong> {{ progress.progress_percentage }}%</p>
-    <p><strong>Status:</strong> {{ progress.completion_status }}</p>
-    <p><strong>Points:</strong> {{ progress.points }}</p>
-    <p><strong>Badge Earned:</strong> {{ progress.badge_earned }}</p>
+        <h2>Progress Information</h2>
+        <p><strong>Progress Percentage:</strong> {{ progress.progress_percentage }}%</p>
+        <p><strong>Status:</strong> {{ progress.completion_status }}</p>
+        <p><strong>Points:</strong> {{ progress.points }}</p>
+        <p><strong>Badge Earned:</strong> {{ progress.badge_earned }}</p>
 
-    <!-- Progress Bar -->
-    <div class="progress-container">
-        <div class="progress-bar" style="width: {{ progress.progress_percentage }}%">{{ progress.progress_percentage }}%</div>
+        <hr class="my-4">
+
+        {% if request.user == enrollment.student.user %}
+            <h3>Update Your Progress</h3>
+            <form method="POST">
+                {% csrf_token %}
+                
+                <div class="mb-3">
+                    <label for="progress_percentage" class="form-label">Update Progress (%)</label>
+                    <input type="number" id="progress_percentage" name="progress_percentage" class="form-control" min="0" max="100" value="{{ progress.progress_percentage }}">
+                </div>
+
+                <div class="mb-3">
+                    <label for="completion_status" class="form-label">Completion Status</label>
+                    <select name="completion_status" id="completion_status" class="form-select">
+                        <option value="In-progress" {% if progress.completion_status == 'In-progress' %}selected{% endif %}>In Progress</option>
+                        <option value="Completed" {% if progress.completion_status == 'Completed' %}selected{% endif %}>Completed</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label for="points" class="form-label">Points</label>
+                    <input type="number" id="points" name="points" class="form-control" min="0" value="{{ progress.points }}">
+                </div>
+
+                <button type="submit" class="btn btn-primary">Save Progress</button>
+            </form>
+        {% endif %}
+
+        <hr class="my-4">
+
+        <p>
+            <a href="{% url 'home' %}" class="btn btn-secondary">Back to Home</a>
+            <a href="{% url 'student_dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+        </p>
     </div>
 
-    <hr>
-
-    {% if request.user == enrollment.student.user %}
-        <form method="POST">
-            {% csrf_token %}
-            <label for="progress_percentage">Update Progress (%)</label>
-            <input type="number" id="progress_percentage" name="progress_percentage" min="0" max="100" value="{{ progress.progress_percentage }}">
-            
-            <label for="completion_status">Completion Status</label>
-            <select name="completion_status" id="completion_status">
-                <option value="In-progress" {% if progress.completion_status == 'In-progress' %}selected{% endif %}>In Progress</option>
-                <option value="Completed" {% if progress.completion_status == 'Completed' %}selected{% endif %}>Completed</option>
-            </select>
-            
-            <label for="points">Points</label>
-            <input type="number" id="points" name="points" min="0" value="{{ progress.points }}">
-
-            <button type="submit">Save Progress</button>
-        </form>
-    {% endif %}
-
-    <br>
-    <a href="{% url 'student_dashboard' %}">Back to Dashboard</a>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -1,45 +1,63 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-    <h1>Your Enrolled Modules</h1>
-    {% if enrollments %}
-        <ul>
-            {% for enrollment in enrollments %}
-                <li>
-                    <strong>{{ enrollment.module.title }}</strong><br>
-                    Progress: 
-                    {% if enrollment.progress %}
-                        {{ enrollment.progress.progress_percentage }}%
-                    {% else %}
-                        No progress recorded
-                    {% endif %}
-                    <br>
-                    <a href="{% url 'track_progress' enrollment.id %}">Track Progress</a>
-                </li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>You are not enrolled in any modules. Please enroll in a module or check back later.</p>
-    {% endif %}
-    
-    <hr>
+    <div class="container mt-4">
+        <h1 class="text-center">Welcome, {{ user.first_name }}!</h1>
+        <h1 class="mb-4">Your Enrolled Modules</h1>
 
-    <h2>Available Modules</h2>
-    {% if available_modules %}
-        <ul>
-            {% for module in available_modules %}
-                <li>
-                    <strong>{{ module.title }}</strong><br>
-                    {{ module.description }}<br>
-                    <a href="{% url 'enroll_in_module' module.id %}">Enroll in this module</a>
-                </li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>No modules available for enrollment at the moment.</p>
-    {% endif %}
+        {% if enrollments %}
+            <ul class="list-group">
+                {% for enrollment in enrollments %}
+                    <li class="list-group-item">
+                        <strong>{{ enrollment.module.title }}</strong><br>
+                        Progress: 
+                        {% if enrollment.progress %}
+                            {{ enrollment.progress.progress_percentage }}%
+                        {% else %}
+                            No progress recorded
+                        {% endif %}
+                        <br>
+                        <a href="{% url 'track_progress' enrollment.id %}" class="btn btn-primary mt-2">Track Progress</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <div class="alert alert-warning mt-3" role="alert">
+                You are not enrolled in any modules. Please enroll in a module or check back later.
+            </div>
+        {% endif %}
+
+        <hr class="my-4">
+
+        <h2 class="mb-4">Available Modules</h2>
+
+        {% if available_modules %}
+            <ul class="list-group">
+                {% for module in available_modules %}
+                    <li class="list-group-item">
+                        <strong>{{ module.title }}</strong><br>
+                        {{ module.description }}<br>
+                        <a href="{% url 'enroll_in_module' module.id %}" class="btn btn-success mt-2">Enroll in this module</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <div class="alert alert-info mt-3" role="alert">
+                No modules available for enrollment at the moment.
+            </div>
+        {% endif %}
+
+        <hr class="my-4">
+
+        <p><a href="{% url 'home' %}" class="btn btn-secondary">Back to Home</a></p>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -1,12 +1,33 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Home</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to the Training Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-    <h1>Welcome to the Training Platform</h1>
-    <a href="{% url 'register' %}">Register</a>
-    <a href="{% url 'login' %}">Login</a>
-    <a href="{% url 'module_list' %}">Browse Training Modules</a>
+
+    <div class="container">
+        <h1 class="text-center mt-5">Welcome to the Training Platform</h1>
+        <p class="text-center mb-4">Whether you are a trainer or a student, our platform offers a wide variety of training modules to enhance your skills and grow your knowledge.</p>
+
+        <div class="card p-4 mb-4">
+            <h2>Get Started Today!</h2>
+            <p>Join a community of passionate learners and trainers. Choose from various modules tailored to different interests and skill levels.</p>
+            <div class="text-center">
+                <a href="{% url 'register' %}" class="btn btn-primary">Register</a>
+                <a href="{% url 'login' %}" class="btn btn-secondary" style="margin-left: 10px;">Login</a>
+                <a href="{% url 'module_list' %}" class="btn btn-secondary" style="margin-left: 10px;">Training Modules</a>
+            </div>
+        </div>
+
+        <div class="card p-4">
+            <h2>About Our Platform</h2>
+            <p>Our platform is designed to help you grow. Whether you are looking to learn something new or share your knowledge with others, we’ve got the tools and resources to make it happen.</p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

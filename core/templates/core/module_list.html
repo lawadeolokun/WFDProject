@@ -1,18 +1,38 @@
-<!-- core/templates/core/module_list.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Training Modules</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-    <h1>Training Modules</h1>
-    <ul>
-        {% for module in modules %}
-            <storng><li>{{ module.title }}:</storng> {{ module.description }}</li>
-            <a href="{% url 'enroll_in_module' module.id %}">Enroll</a>
-        {% endfor %}
-    </ul>
+
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Training Modules</h1>
+
+        {% if modules %}
+            <div class="list-group">
+                {% for module in modules %}
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>{{ module.title }}:</strong> {{ module.description }}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-center">No training modules available at the moment.</p>
+        {% endif %}
+
+        <br>
+        <p>To enroll in a module please return to the home page and sign up.</p>
+
+        <div class="text-center mt-4">
+            <a href="{% url 'home' %}" class="btn btn-secondary">Back to Home</a>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

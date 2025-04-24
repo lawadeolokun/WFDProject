@@ -29,7 +29,7 @@ def enroll_in_module(request, module_id):
         Enrollment.objects.create(student=student, module=module)
         return redirect('student_dashboard')
     
-    return render(request, 'core/enroll_failed.html', {'message': 'Already enrolled in this module'})
+    return redirect('student_dashboard')
 
 @login_required
 def student_dashboard(request):

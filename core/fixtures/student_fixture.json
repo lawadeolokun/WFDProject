@@ -1,0 +1,10 @@
+[
+  {
+    "model": "core.student",
+    "pk": 1,
+    "fields": {
+      "user": 2,
+      "student_id": "ST-001"
+    }
+  }
+]

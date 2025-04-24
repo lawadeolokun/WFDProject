@@ -1,0 +1,44 @@
+[
+  {
+    "model": "core.user",
+    "pk": 1,
+    "fields": {
+      "username": "admin",
+      "email": "admin@admin.com",
+      "password": "pbkdf2_sha256$870000$vrBnF5CdtR5fbyCy3Mkk9q$eQxct0NVINvNpGOfVjYW98u2DscokaPJLEYFr0gXKwg=",
+      "is_staff": true,
+      "is_superuser": true,
+      "first_name": "Admin",
+      "last_name": "User",
+      "role": "admin"
+    }
+  },
+  {
+    "model": "core.user",
+    "pk": 2,
+    "fields": {
+      "username": "user1",
+      "email": "user1@user1.com",
+      "password": "pbkdf2_sha256$870000$vrBnF5CdtR5fbyCy3Mkk9q$eQxct0NVINvNpGOfVjYW98u2DscokaPJLEYFr0gXKwg=",  
+      "is_staff": false,
+      "is_superuser": false,
+      "first_name": "User",
+      "last_name": "One",
+      "role": "student"
+    }
+  },
+  {
+    "model": "core.user",
+    "pk": 3,
+    "fields": {
+      "username": "trainer1",
+      "email": "trainer1@trainer.com",
+      "password": "pbkdf2_sha256$870000$vrBnF5CdtR5fbyCy3Mkk9q$eQxct0NVINvNpGOfVjYW98u2DscokaPJLEYFr0gXKwg=", 
+      "is_staff": false,
+      "is_superuser": false,
+      "first_name": "Trainer",
+      "last_name": "One",
+      "role": "trainer"
+    }
+  }
+]

@@ -1,0 +1,10 @@
+[
+  {
+    "model": "core.trainer",
+    "pk": 1,
+    "fields": {
+      "user": 3,
+      "trainer_id": "TR-001"
+    }
+  }
+]
